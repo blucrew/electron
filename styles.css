@@ -1,0 +1,685 @@
+html {
+    min-height: 100%;
+}
+
+body {
+    background: #f3f3f3;
+    /* Old browsers */
+    background: -moz-linear-gradient(45deg, #f3f3f3 0%, #c0c0c0 100%);
+    /* FF3.6-15 */
+    background: -webkit-linear-gradient(45deg, #f3f3f3 0%, #c0c0c0 100%);
+    /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(45deg, #f3f3f3 0%, #c0c0c0 100%);
+    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    font-family: Cabin, sans-serif;
+}
+
+.version-info {
+  color: #bbb;
+}
+
+#main-container,
+#status-message,
+#initialize-audio,
+#ride-info,
+#drive-info {
+    border: 0;
+    border-radius: 5px;
+    margin: 30px auto;
+    padding: 15px;
+    width: 90vw;
+}
+
+#status-message,
+#initialize-audio,
+#ride-info,
+#drive-info {
+    background: #e0e8ff;
+    border: 1px solid #555999;
+    color: #555999;
+    font-size: 18px;
+    line-height: 1.5em;
+    text-align: center;
+}
+
+#initialize-audio {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#controls {
+		margin: 0 auto;
+		width: 90vw;
+		display: flex;
+		gap: 10px;
+		align-items: stretch;
+}
+
+#left-channel-column,
+#right-channel-column {
+    flex-grow: 1;
+}
+
+div.color-header {
+    border-radius: 20px 20px 0 0;
+    padding: 15px;
+    height: 40px;
+}
+
+div.color-header h2 {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: fit-content;
+}
+
+#left-channel-column div.color-header {
+    background: #03a9f4;
+    padding: 15px;
+}
+
+#right-channel-column div.color-header {
+    background: #8bc34a;
+    padding: 15px;
+}
+
+#left-channel-column .content,
+#right-channel-column .content {
+    background: #FFF;
+    color: #444;
+    font-weight: 400;
+    padding: 5px 15px 15px;
+}
+
+#left-channel-column button.apply-btn {
+    background: #03a9f4;
+}
+
+#right-channel-column button.apply-btn {
+    background: #8bc34a;
+}
+
+.roundy-btn {
+    background: #757575;
+    border: 1px solid black;
+    border-radius: 20px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+    color: #FFF;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1em;
+    padding: 0.5em;
+    text-decoration: none;
+}
+.small.roundy-btn {
+    font-size: 14px;
+    line-height: 1.1em
+    padding: 0.7em;
+}
+.roundy-btn[disabled] {
+  color: #888;
+}
+
+.circle-icon {
+  border: 1px solid black;
+  border-radius: 20px;
+  color: black;
+  min-height: 1rem;
+  min-width: 1.2em;
+  text-align: center;
+  cursor: pointer;
+  margin: 0.2rem 0.2em;
+}
+
+button.apply-btn,
+button.pain-btn {
+    border: 0;
+    border-radius: 5px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+    color: #FFF;
+    cursor: pointer;
+    display: block;
+    font-family: Cabin, sans-serif;
+    font-size: 16px;
+    margin: 30px auto auto;
+    padding: 10px;
+    text-align: center;
+    width: 100%;
+}
+
+button.pain-btn {
+    background: #111;
+}
+
+button.stop-btn {
+    background: #d00;
+    border: 0;
+    border-radius: 20px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+    color: #FFF;
+    cursor: pointer;
+    float: right;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 20px;
+    padding: 10px 20px;
+    position: relative;
+}
+
+button.home-btn {
+    align-self: flex-end;
+    background: #8bc34a;
+    border: 0;
+    border-radius: 20px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+    color: white;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 20px;
+    margin-top: 10px;
+    padding: 10px 20px;
+    width: 100%;
+}
+
+button.home-btn:hover {
+    background: #77a83e;
+}
+
+h2 {
+    float: left;
+    font-size: 22px;
+    margin: 0;
+}
+
+.form-row {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.form-row input,
+.form-row select {
+    background: #FFF;
+    font-family: Cabin, sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+    width: 110px;
+}
+
+.form-row label {
+    display: inline-block;
+    font-weight: 600;
+    width: 230px;
+}
+
+.form-row .detailed-description {
+    font-size: 14px;
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+.footnotes {
+    background: #FFF;
+    border-radius: 5px;
+    margin: auto;
+    margin-top: 20px;
+    padding: 25px;
+    text-align: center;
+    width: 1010px;
+    box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.4) inset;
+    text-align: left;
+}
+
+.footnotes h2 {
+    float: none;
+}
+
+.footnotes h2 span {
+    color: red;
+}
+
+#sketch-holder-wrapper {
+    background: #FFF;
+    border-radius: 5px;
+    margin: auto;
+    padding: 25px;
+    text-align: center;
+    width: 980px;
+}
+
+#sketch-holder {
+    box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.4) inset;
+    padding: 25px;
+}
+
+/* Style the tab */
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #ddd;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: 1px solid #ccc;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-family: Cabin, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: #ccc;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+    background-color: #bbb;
+}
+
+.electron-title {
+    font-family: 'Titillium Web';
+    font-size: 64px;
+    font-weight: 200;
+    letter-spacing: .3em;
+    margin-top: 30px;
+    text-align: center;
+    text-shadow: 0 0 18px #1E90FF;
+    color: black;
+}
+
+.electron-title a {
+    text-decoration: none;
+    color: inherit;
+}
+
+#session-id {
+    background: #FFF;
+    border: 1px solid #c5c5c5;
+    border-radius: 5px;
+    font-family: Cabin, sans-serif;
+    font-size: 20px;
+    font-weight: 300;
+    padding: 10px;
+    text-align: center;
+    width: 180px;
+}
+
+#mode-selector-container {
+    display: inline-flex;
+    width: fit-content;
+}
+
+div.mode-selector-box {
+    background: #FFF;
+    border-radius: 5px;
+    box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.4) inset;
+    color: #333;
+    display: inline-grid;
+    margin-inline: 10px;
+    padding: 20px;
+    text-align: center;
+    width: 250px;
+}
+
+#join-session-warning-text {
+    color: #a00;
+}
+
+div.mode-selector-box div {
+    height: 190px;
+}
+
+div.mode-selector-box div.home-btn-wrapper {
+    height: fit-content;
+    display: flex;
+    flex-direction: column-reverse;
+    align-self: end;
+}
+
+div.mode-selector-box p {
+    color: #888;
+}
+
+.ui-selectmenu-button.ui-button {
+    width: 117px;
+}
+
+.slider-wrapper {
+    margin-bottom: 30px;
+}
+
+#pain-dialog .warning-text {
+    color: #a00;
+    line-height: 150%;
+    margin: 12px 0;
+}
+
+#theme-toggler {
+    background-color: #fff;
+    border: none;
+    border-radius: 5px;
+    bottom: 20px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
+    color: #444;
+    cursor: pointer;
+    right: 20px;
+    outline: none;
+    padding: 10px 20px;
+    position: fixed;
+    text-align: center;
+    z-index: 1000;
+    font-weight: bold;
+}
+
+#theme-toggler:hover {
+    background-color: #eee;
+}
+
+.traffic-light {
+    display: flex;
+    align-items: stretch;
+}
+
+.traffic-light button {
+    border: 3px double #333;
+    border-radius: 50%;
+    height: 60px;
+    width: 60px;
+    margin: 10px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2), 0 0 50px rgba(0, 0, 0, 1) inset;
+    cursor: pointer;
+}
+
+.traffic-light button.active.green {
+    box-shadow: 0px 2px 20px rgba(0, 255, 0, 0.6), 0px 0px 40px rgba(0, 255, 0, 0.4);
+}
+
+.traffic-light button.active.yellow {
+    box-shadow: 0px 2px 20px rgba(255, 255, 0, 0.6), 0px 0px 40px rgba(255, 255, 0, 0.4);
+}
+
+.traffic-light button.active.red {
+    box-shadow: 0px 2px 20px rgba(255, 0, 0, 0.6), 0px 0px 40px rgba(255, 0, 0, 0.4);
+}
+
+.traffic-light button.green {
+    background-color: #00ff00;
+}
+
+.traffic-light button.yellow {
+    background-color: yellow;
+}
+
+.traffic-light button.red {
+    background-color: red;
+}
+
+.traffic-light-explanation p {
+    font-weight: bold;
+}
+
+.traffic-light-explanation,
+.traffic-light-container {
+    background: #e0e8ff;
+    border: 1px solid #555999;
+    border-radius: 5px;
+    color: #555999;
+    font-size: 18px;
+    margin: 30px 10px;
+    padding: 15px;
+    flex-grow: 1;
+}
+
+.traffic-light-container {
+    background: #404040;
+    flex-grow: 0;
+}
+
+.traffic-light-container {
+    display: flex;
+    align-items: center;
+}
+
+.traffic-light-explanation p,
+.traffic-light-explanation ul {
+    margin: 5px;
+}
+
+.traffic-bar-container {
+    display: flex;
+    padding: 10px;
+}
+
+.traffic-bar {
+    height: 15px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 1) inset;
+    background-color: #333;
+}
+
+.traffic-bar.red {
+    background-color: red;
+}
+
+.traffic-bar.yellow {
+    background-color: yellow;
+}
+
+.traffic-bar.green {
+    background-color: #00ff00;
+}
+
+.controls-container {
+  min-height: 5rem;
+  text-align: left;
+  .fields {
+    display: inline-block;
+    width: 44%;
+    .field {
+      display: flex;
+      justify-content: space-between;
+      input,select {
+        max-height: 2em;
+        margin-left: 1em;
+        flex-grow: 1;
+      }
+      button {
+        max-height: 2em;
+      }
+    }
+  }
+  .toggles {
+    display: inline-block;
+    margin-left: 8%;
+    width: 46%;
+  }
+}
+
+#driver-name {
+  width: 15.3em;
+}
+#driver-cam-url {
+  width: 20em;
+}
+#driver-comments {
+  width: 17.8em;
+}
+
+.bottle-countdown {
+  vertical-align: middle;
+}
+
+.save-load-bar {
+    width: 90vw;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap-reverse;
+}
+
+.save-load-bar .slb-left {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.save-load-bar .slb-middle {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+#clear-steps-container,
+#save-script-container {
+    display: contents;
+}
+
+.save-load-bar .slb-right {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.load-file-picker-container {
+    background: #757575;
+    border: 1px solid black;
+    border-radius: 20px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+    color: #FFF;
+    cursor: pointer;
+    float: right;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 20px;
+    padding: 10px 20px;
+    position: relative;
+    max-width: 22em;
+}
+
+#cancel-script {
+  scale: 66%;
+}
+
+ul.public-session-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+ul.public-session-list li {
+}
+
+#nocontrols {
+  font-weight: bold;
+  text-align: center;
+  font-size: 1.2em;
+}
+
+#ride-info {
+  position: relative;
+  min-height: 10rem;
+}
+
+#ride-info h3 {
+  text-align: left;
+  margin-top: -0.9rem;
+  margin-left: -0.5em;
+}
+
+#driver-nametag {
+  text-align: left;
+  margin-top: -1em;
+}
+#driver-nametag .nametag {
+  font-weight: bold;
+}
+
+#file-playing {
+  text-align: left;
+  max-width: 50%;
+  line-height: 1.2rem;
+}
+#file-playing .file-playing-info {
+  font-size: 0.8em;
+  font-style: italic;
+  margin-left: 0.5em;
+}
+#file-playing .file-driver-info {
+  font-size: 0.9em;
+  margin-left: 0.5em;
+}
+
+#cam-url {
+  border: 1px solid #888;
+  position: absolute;
+  top: 0;
+  right: 1em;
+  width: 40%;
+}
+#cam-url .cam-url-link {
+  font-size: 0.8em;
+}
+#cam-url .cam-url-warning {
+  font-style: italic;
+  font-size: 0.9em;
+}
+
+#comments {
+  text-align: left;
+  margin-bottom: 0;
+}
+
+#lastBottle {
+  text-align: left;
+  margin-bottom: 0;
+}
+
+#bottle-duration, #bottle-duration-val {
+  vertical-align: middle;
+}
+
+#trigger-bottle-prompt {
+  margin-left: 1em;
+}
+
+#rider-bottle-countdown {
+  position: fixed;
+  background: rgba(74, 64, 64, 0.69);
+}
+#rider-bottle-countdown > .bottle-countdown {
+  position: absolute;
+}
+#rider-bottle-countdown, #rider-bottle-countdown > .bottle-countdown {
+  z-index: 999;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+#rider-bottle-countdown .bottle {
+  position: relative;
+  left: 43.4%;
+  top: 30%;
+}
+#rider-bottle-countdown .seconds {
+  position: absolute;
+  left: 48%;
+  top: 48%;
+  font-size: 90px;
+  color: white;
+}
+
+.analyze-script-link {
+  margin-left: auto;
+}

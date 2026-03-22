@@ -1,27 +1,39 @@
 services:
   electron:
     build: .
-    ports:
-      - "5000:5000"
+    container_name: electron
+    entrypoint: ["node", "index.js"]
     environment:
       - NODE_ENV=production
       - PORT=5000
     volumes:
-      # Persistent storage for SQLite database
       - electron-data:/app/data
-      # Optional: mount your config file
-      # - ./config.js:/app/config.js:ro
-      # Optional: mount saved sessions directory
-      # - ./saved_sessions:/app/saved_sessions
-      # Optional: mount playlist files
-      # - ./session_files:/app/session_files:ro
+      - ./config.js:/app/config.js:ro
+      - ./session_files:/app/session_files:ro
+      - ./public:/app/public:ro
+      - ./views:/app/views:ro
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:5000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
+    networks:
+      - electron
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - electron
+    restart: unless-stopped
+    networks:
+      - electron
+
+networks:
+  electron:
+    driver: bridge
 
 volumes:
   electron-data:
