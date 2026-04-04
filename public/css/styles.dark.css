@@ -116,6 +116,10 @@ div.mode-selector-box {
     color: #ccc;
 }
 
+div.mode-selector-box p {
+    color: #aaa;
+}
+
 #theme-toggler {
     background-color: #333;
     color: #fff;
@@ -269,5 +273,35 @@ html .ui-button.ui-state-disabled:active {
 
 #auto-bottle-status {
     color: #999;
+}
+
+/* footnotes.html dark mode overrides */
+.footnotes-container {
+    color: #ccc;
+    border-color: #333;
+}
+.footer-section h4 {
+    color: #fff;
+}
+.attribution-banner {
+    border-color: #222;
+}
+.attribution-instance-name {
+    color: #fff;
+}
+.about-text {
+    color: #aaa;
+}
+.about-highlight {
+    color: #eee;
+}
+.support-text {
+    color: #aaa;
+}
+.footer-bottom {
+    border-color: #222;
+}
+.footer-copyright-instance {
+    color: #fff;
 }
 

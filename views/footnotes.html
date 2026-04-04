@@ -1,0 +1,243 @@
+<style>
+.footnotes-container {
+margin-top: 60px;
+padding: 30px 20px;
+border-top: 1px solid;
+font-family: 'Cabin', sans-serif;
+}
+.footer-logo-container {
+text-align: center;
+margin-bottom: 30px;
+}
+.footer-logo {
+max-width: 100%;
+width: 800px;
+height: auto;
+filter: drop-shadow(0 0 10px rgba(217, 83, 79, 0.3));
+transition: transform 0.2s, filter 0.2s;
+}
+.footer-logo:hover {
+transform: scale(1.02);
+filter: drop-shadow(0 0 15px rgba(217, 83, 79, 0.5));
+}
+.footer-grid {
+display: flex;
+flex-wrap: wrap;
+justify-content: space-between;
+gap: 30px;
+max-width: 1200px;
+margin: 0 auto;
+}
+.footer-section {
+flex: 1;
+min-width: 250px;
+}
+.footer-section.centered {
+text-align: center;
+}
+.footer-section.centered ul {
+display: inline-block;
+text-align: left;
+padding: 0;
+list-style: none;
+}
+.footer-section h4 {
+margin-bottom: 15px;
+font-size: 1.2em;
+letter-spacing: 1px;
+}
+.footer-link {
+color: #d9534f;
+text-decoration: none;
+display: flex;
+align-items: center;
+transition: color 0.2s;
+}
+.footer-link:hover {
+color: #f0ad4e;
+}
+.attribution-banner {
+text-align: center;
+margin-bottom: 40px;
+padding-bottom: 25px;
+border-bottom: 1px solid;
+font-size: 1em;
+line-height: 1.6;
+}
+.attribution-instance-name {
+letter-spacing: 2px;
+font-weight: bold;
+}
+.attribution-link {
+color: #d9534f;
+text-decoration: none;
+font-weight: bold;
+border-bottom: 1px solid transparent;
+}
+.attribution-link:hover {
+border-bottom-color: #d9534f;
+}
+.about-text {
+font-size: 0.95em;
+line-height: 1.7;
+}
+.about-highlight {
+letter-spacing: 1px;
+font-weight: bold;
+}
+.support-text {
+font-size: 0.9em;
+margin-bottom: 20px;
+line-height: 1.6;
+}
+.footer-bottom {
+text-align: center;
+margin-top: 50px;
+border-top: 1px solid;
+padding-top: 25px;
+}
+.footer-copyright {
+font-size: 0.75em;
+opacity: 0.7;
+letter-spacing: 2px;
+text-transform: uppercase;
+margin-bottom: 20px;
+}
+@media (max-width: 600px) {
+.footer-section {
+min-width: 100%;
+text-align: center;
+margin-bottom: 20px;
+}
+.footer-logo {
+width: 90%;
+}
+}
+</style>
+
+<div class="footnotes-container">
+
+<!-- Brand Logo Banner -->
+<div class="footer-logo-container">
+    <a href="https://www.estimstation.com/" target="_blank">
+        <img src="/eStimStationElectroLogoClear.png" alt="eStimStation" class="footer-logo">
+    </a>
+</div>
+
+<!-- Hosting Attribution -->
+<div class="attribution-banner">
+    This instance of <span class="attribution-instance-name">e l e c t r o n</span> is hosted by
+    <a href="https://x.com/SirThorn" target="_blank" class="attribution-link">Sir Thorn</a>
+    on behalf of
+    <a href="https://discord.gg/VXYYduDX4T" target="_blank" class="attribution-link">eStimStation</a>.
+</div>
+
+<div class="footer-grid">
+
+    <!-- About Section -->
+    <div class="footer-section">
+        <h4>About eStimStation</h4>
+        <p class="about-text">
+            Welcome to our <span class="about-highlight">e l e c t r o n</span> instance. This platform is dedicated to synchronized
+            experiences and remote driving. Please use the tools responsibly
+            and always prioritize safety and communication.
+        </p>
+    </div>
+
+    <!-- Quick Links (Centered) -->
+    <div class="footer-section centered">
+        <h4>Explore</h4>
+        <ul>
+            <li style="margin-bottom: 12px;"><a href="https://www.estimstation.com/" target="_blank" class="footer-link" style="justify-content: center;">Main Website</a></li>
+            <li style="margin-bottom: 12px;"><a href="https://discord.gg/stimstation" target="_blank" class="footer-link" style="justify-content: center;">Discord Community</a></li>
+            <li style="margin-bottom: 12px;"><a href="https://shop.estimstation.com/" target="_blank" class="footer-link" style="justify-content: center;">Official Merch Store</a></li>
+        </ul>
+    </div>
+
+    <!-- Support Section -->
+    <div class="footer-section">
+        <h4>Support the Mission</h4>
+        <p class="support-text">
+            If you enjoy the sessions here, consider supporting eStimStation's development and hosting costs to keep the instance running smooth.
+        </p>
+        <a href='https://ko-fi.com/stimstation' target='_blank' class="kofi-button" style="display: inline-block; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <img height='36' style='border:0px;height:36px; border-radius: 4px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Donate on Ko-fi' />
+        </a>
+    </div>
+
+</div>
+
+<!-- Footer Copyright & Portrait -->
+<div class="footer-bottom">
+    <div class="footer-copyright">
+        e l e c t r o n | Powered by <span class="footer-copyright-instance">eStimStation - an adult electrostim discord community</span>
+    </div>
+    <a href="https://www.estimstation.com/sir-thorn.html" target="_blank"><img id="portrait-img" src="/Sir_Thorn_portrait.png" alt="Sir Thorn" style="width: 120px; height: auto; border-radius: 50%; border: 2px solid #333; opacity: 0.8; filter: grayscale(20%);" onerror="this.parentElement.style.display='none'"></a>
+</div>
+
+
+</div>
+
+<script>
+const DARK_PORTRAITS = {
+    VALENTINE: 'Sir_Thorn_portrait_DARK_VALENTINE.png',
+    STPADDYS:  'Sir_Thorn_portrait_DARK_STPADDYS.png',
+    EASTER:    'Sir_Thorn_portrait_DARK_EASTER.png',
+    JULY4:     'Sir_Thorn_portrait_DARK_JULY4.png',
+    BIRTHDAY:  'Sir_Thorn_portrait_DARK_BIRTHDAY.png',
+    HALLOWEEN: 'Sir_Thorn_portrait_DARK_Halloween.png',
+    XMAS:      'Sir_Thorn_portrait_DARK_XMAS.png',
+    NYE:       'Sir_Thorn_portrait_DARK_NYE.png',
+    DEFAULT:   'Sir_Thorn_portrait.png'
+};
+const LIGHT_PORTRAITS = {
+    VALENTINE: 'Sir_Thorn_portrait_LIGHT_VALENTINE.png',
+    STPADDYS:  'Sir_Thorn_portrait_LIGHT_STPADDYS.png',
+    EASTER:    'Sir_Thorn_portrait_LIGHT_EASTER.png',
+    JULY4:     'Sir_Thorn_portrait_LIGHT_JULY4.png',
+    BIRTHDAY:  'Sir_Thorn_portrait_LIGHT_BIRTHDAY.png',
+    HALLOWEEN: 'Sir_Thorn_portrait_LIGHT_HALLOWEEN.png',
+    XMAS:      'Sir_Thorn_portrait_LIGHT_XMAS.png',
+    NYE:       'Sir_Thorn_portrait_LIGHT_NYE.png',
+    DEFAULT:   'Sir_Thorn_portrait_LIGHT.png'
+};
+const EASTER_DATES = ['4-5', '3-28', '4-16', '4-1', '4-21', '4-13']; // 2026-2031
+
+function getHoliday() {
+    const now = new Date();
+    const m = now.getMonth() + 1;
+    const d = now.getDate();
+    const key = `${m}-${d}`;
+    if (EASTER_DATES.includes(key)) return 'EASTER';
+    if (m === 2  && d === 14) return 'VALENTINE';
+    if (m === 3  && d === 17) return 'STPADDYS';
+    if (m === 7  && d === 4)  return 'JULY4';
+    if (m === 9  && d === 4)  return 'BIRTHDAY';
+    if (m === 10 && d === 31) return 'HALLOWEEN';
+    if (m === 12 && d === 25) return 'XMAS';
+    if (m === 12 && d === 31) return 'NYE';
+    return 'DEFAULT';
+}
+
+function updatePortrait() {
+    const img = document.getElementById('portrait-img');
+    if (!img) return;
+    const holiday = getHoliday();
+    img.src = '/' + (lightTheme ? LIGHT_PORTRAITS[holiday] : DARK_PORTRAITS[holiday]);
+}
+
+document.addEventListener('DOMContentLoaded', updatePortrait);
+</script>
+
+<!-- Ko-fi Donation Widget -->
+
+<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+
+<script>
+kofiWidgetOverlay.draw('stimstation', {
+'type': 'floating-chat',
+'floating-chat.donateButton.text': 'Support Us',
+'floating-chat.donateButton.background-color': '#d9534f',
+'floating-chat.donateButton.text-color': '#fff'
+});
+</script>

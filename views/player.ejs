@@ -58,6 +58,18 @@
   </div>
   <h1 class="electron-title"><a href="/">electron</a></h1>
 
+  <div id="april-fools-banner" style="background:#5a2d00;color:#ffcc88;text-align:center;padding:8px 16px;font-size:1.15em;border-bottom:1px solid #a0520080;">
+    ⚡🎈 <strong>APRIL 1ST NOTICE:</strong> Due to rising electricity costs, all sessions today are powered by static from someone rubbing a balloon. We apologize for any reduction in intensity. 🎈⚡
+  </div>
+  <script>
+    (function() {
+      var now = new Date();
+      if (now.getMonth() !== 3 || now.getDate() !== 1) {
+        document.getElementById('april-fools-banner').style.display = 'none';
+      }
+    })();
+  </script>
+
   <div id="status-message">
     Welcome to electron! You are currently playing in «solo mode».
     <p class='lastBottle'></p>

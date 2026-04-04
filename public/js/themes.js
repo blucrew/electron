@@ -11,6 +11,7 @@ function toggleTheme() {
         darkmodeStylesheet.href = "";
         setThemeCookie("light", 30); // Save the user's choice in a cookie
     }
+    if (typeof updatePortrait === 'function') updatePortrait();
 }
 
 function loadTheme() {

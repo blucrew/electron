@@ -15,7 +15,7 @@ body {
 }
 
 .version-info {
-  color: #bbb;
+  color: #888;
 }
 
 #main-container,
@@ -245,6 +245,36 @@ h2 {
     color: red;
 }
 
+/* footnotes.html custom footer - light mode colors */
+.footnotes-container {
+    color: #333;
+    border-color: #999;
+}
+.footer-section h4 {
+    color: #111;
+}
+.attribution-banner {
+    border-color: #bbb;
+}
+.attribution-instance-name {
+    color: #111;
+}
+.about-text {
+    color: #555;
+}
+.about-highlight {
+    color: #222;
+}
+.support-text {
+    color: #555;
+}
+.footer-bottom {
+    border-color: #bbb;
+}
+.footer-copyright-instance {
+    color: #333;
+}
+
 #sketch-holder-wrapper {
     background: #FFF;
     border-radius: 5px;
@@ -351,7 +381,7 @@ div.mode-selector-box div.home-btn-wrapper {
 }
 
 div.mode-selector-box p {
-    color: #888;
+    color: #444;
 }
 
 .ui-selectmenu-button.ui-button {
