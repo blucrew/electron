@@ -27,12 +27,14 @@ class ElectronState {
         this.automatedDrivers = {};     // stores automated drivers by their session ids
         this.trafficLights = {};        // dictionary binding sockets to red / yellow / green traffic lights
         this.emojiResponses = {};       // dictionary binding sockets to emoji responses
+        this.riderJoinTimes = {};       // dictionary binding sockets to join timestamp (ms)
         
         logger('[] startup');
         if (this.config.verbose) logger('[] verbose logging enabled');
         if (this.config.memoryMonitor) logger('[] memoryMonitor logging enabled');
         
         this.logActiveSessionCount();
+        this.startRiderReaper();
     }
 
     initDatabase() {
@@ -304,10 +306,16 @@ class ElectronState {
 
     addRiderSocket(sessId, socket) {
         if (this.riders[sessId]) {
+            // Guard against the same socket being registered twice (e.g. a
+            // client re-emitting registerRider on reconnect). A duplicate entry
+            // would never be fully removed on disconnect (see onDisconnect) and
+            // would leak as a zombie rider, as well as double every broadcast.
+            if (this.riders[sessId].includes(socket)) return;
             this.riders[sessId].push(socket);
         } else {
             this.riders[sessId] = [socket];
         }
+        this.riderJoinTimes[socket.id] = Date.now();
         if (this.config.memoryMonitor) logger("[%s] memoryMonitor: addRiderSocket %o", sessId, process.memoryUsage());
     }
 
@@ -519,39 +527,82 @@ class ElectronState {
 
     getRiderData(sessId) {
         const riderSockets = this.getRiderSockets(sessId);
-        const riderData = { 'G': 0, 'Y': 0, 'R': 0, 'N': 0, 'total': 0 };
+        const riderData = { 'G': 0, 'Y': 0, 'R': 0, 'N': 0, 'total': 0, 'longestMins': 0 };
+        const now = Date.now();
 
-        riderSockets.forEach((s) => { 
+        riderSockets.forEach((s) => {
             const color = this.getRiderTrafficLight(s);
             riderData[color]++;
             riderData.total++;
+            if (this.riderJoinTimes[s.id]) {
+                const mins = (now - this.riderJoinTimes[s.id]) / 60000;
+                if (mins > riderData.longestMins) riderData.longestMins = mins;
+            }
         });
+        riderData.longestMins = parseFloat(riderData.longestMins.toFixed(1));
         return riderData;
+    }
+
+    // Defense-in-depth: periodically reap rider sockets that are no longer
+    // connected but were never cleaned up (e.g. a 'disconnect' event that never
+    // reached onDisconnect). Without this, such sockets linger as zombie riders.
+    startRiderReaper() {
+        if (this._riderReaperTimer) return;
+        const intervalMs = this.config.riderReaperMs || 60000;
+        this._riderReaperTimer = setInterval(() => this.reapDeadRiders(), intervalMs);
+        if (this._riderReaperTimer.unref) this._riderReaperTimer.unref();
+        logger('[] Rider reaper started (every %dms)', intervalMs);
+    }
+
+    reapDeadRiders() {
+        try {
+            const dead = [];
+            for (const sessId in this.riders) {
+                for (const socket of this.riders[sessId]) {
+                    if (!socket.connected && dead.indexOf(socket) === -1) dead.push(socket);
+                }
+            }
+            for (const socket of dead) {
+                logger('[] Reaping dead rider socket %s', socket.id);
+                this.onDisconnect(socket);
+            }
+        } catch (e) {
+            logger('[] reapDeadRiders error: %s', e && e.stack ? e.stack : e);
+        }
     }
 
     onDisconnect(socket) {
         let found_rider = false;
         const remote_ip = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address;
 
+        const joinTime = this.riderJoinTimes[socket.id];
+        const durationMins = joinTime ? ((Date.now() - joinTime) / 60000).toFixed(1) : '?';
+
         for (const sessId in this.riders) {
-            const index = this.riders[sessId].indexOf(socket);
-            if (index > -1) {
-                found_rider = true;
-                this.riders[sessId].splice(index, 1);
-                delete this.trafficLights[socket.id];
-                delete this.emojiResponses[socket.id];
+            // Remove *every* occurrence of this socket, not just the first. A
+            // single indexOf/splice would leave any duplicate entries behind as
+            // permanent zombie riders once the underlying connection is gone.
+            const before = this.riders[sessId].length;
+            this.riders[sessId] = this.riders[sessId].filter(s => s !== socket);
+            if (this.riders[sessId].length === before) continue;
 
-                const ridersLeft = this.riders[sessId].length;
-                logger('[%s] Rider left from %s (session riders: %d)', sessId, remote_ip, ridersLeft);
+            found_rider = true;
+            const ridersLeft = this.riders[sessId].length;
+            logger('[%s] Rider left from %s after %sm (session riders: %d)', sessId, remote_ip, durationMins, ridersLeft);
 
-                if (ridersLeft == 0 && ! this.driverSockets[sessId] && ! this.automatedDrivers[sessId]) {
-                    logger('[%s] Last rider left, no driver present, ending session', sessId);
-                    this.cleanupSessionData(sessId);
-                }
-
-                if (this.config.memoryMonitor) logger("[%s] memoryMonitor: onDisconnect-rider-left %o", sessId, process.memoryUsage());
+            if (ridersLeft == 0 && ! this.driverSockets[sessId] && ! this.automatedDrivers[sessId]) {
+                logger('[%s] Last rider left, no driver present, ending session', sessId);
+                this.cleanupSessionData(sessId);
             }
+
+            if (this.config.memoryMonitor) logger("[%s] memoryMonitor: onDisconnect-rider-left %o", sessId, process.memoryUsage());
         }
+
+        // Always release per-socket state, even if the socket was never tracked
+        // as a rider, so these maps can never outlive the connection.
+        delete this.riderJoinTimes[socket.id];
+        delete this.trafficLights[socket.id];
+        delete this.emojiResponses[socket.id];
 
         if (! found_rider) {
             for (const sessId in this.driverSockets) {

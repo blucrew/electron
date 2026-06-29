@@ -1,0 +1,342 @@
+/* ═══════════════════════════════════════════════════════
+   E L E C T R O N  —  VAPORWAVE KONAMI MODE
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Canvas background ───────────────────────────────── */
+#vaporwave-bg-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* ── Flash overlay ───────────────────────────────────── */
+#konami-flash {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    background: rgba(5, 0, 20, 0.90);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+#konami-flash.kf-visible { opacity: 1; }
+.kf-title {
+    font-family: 'Bungee Outline', cursive;
+    font-size: clamp(2.2rem, 6.5vw, 5.5rem);
+    color: #ff6ec7;
+    text-shadow: 0 0 15px #ff6ec7, 0 0 35px #ff6ec7, 0 0 70px #ff3090;
+    letter-spacing: 0.3em;
+    animation: vapor-flicker 0.4s step-end 4;
+}
+.kf-sub {
+    font-family: 'Bungee', cursive;
+    font-size: clamp(0.9rem, 3vw, 2rem);
+    color: #00e5ff;
+    text-shadow: 0 0 10px #00e5ff, 0 0 25px #00e5ff;
+    letter-spacing: 0.2em;
+}
+.kf-counter {
+    font-family: 'Bungee', cursive;
+    font-size: clamp(0.8rem, 2.2vw, 1.5rem);
+    color: #ffe066;
+    text-shadow: 0 0 8px #ffe066, 0 0 20px #ff9a3c;
+    letter-spacing: 0.12em;
+}
+.kf-counter span { color: #00e5ff; text-shadow: 0 0 8px #00e5ff; }
+
+/* ── Body ────────────────────────────────────────────── */
+body.vaporwave {
+    background: transparent !important;
+}
+
+/* Scanline overlay */
+body.vaporwave::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,0.05) 0px,
+        rgba(0,0,0,0.05) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    pointer-events: none;
+    z-index: 99990;
+}
+
+/* ── Typography ──────────────────────────────────────── */
+body.vaporwave h1:not(.electron-title),
+body.vaporwave h2,
+body.vaporwave h3,
+body.vaporwave h4 {
+    font-family: 'Bungee Outline', cursive !important;
+    color: #ff6ec7 !important;
+    text-shadow: 0 0 8px #ff6ec7, 0 0 18px #ff3090 !important;
+}
+
+body.vaporwave .electron-title {
+    font-family: 'Bungee Outline', cursive !important;
+    color: #ff6ec7 !important;
+    text-shadow:
+        0 0 10px #ff6ec7,
+        0 0 28px #ff6ec7,
+        0 0 55px #ff3090,
+        0 0 110px #b14aed !important;
+    animation: vapor-pulse 2.2s ease-in-out infinite;
+}
+
+/* ── Mode selector boxes ─────────────────────────────── */
+body.vaporwave div.mode-selector-box {
+    background: rgba(8, 0, 25, 0.84) !important;
+    border: 2px solid #00e5ff !important;
+    box-shadow:
+        0 0 14px #00e5ff,
+        0 0 32px rgba(0, 229, 255, 0.25),
+        inset 0 0 14px rgba(0, 229, 255, 0.07) !important;
+    color: #e0c0ff !important;
+}
+body.vaporwave div.mode-selector-box h1 {
+    color: #ff6ec7 !important;
+    text-shadow: 0 0 8px #ff6ec7, 0 0 18px #ff3090 !important;
+}
+body.vaporwave div.mode-selector-box p {
+    color: #b14aed !important;
+    text-shadow: 0 0 6px #b14aed !important;
+}
+body.vaporwave #join-session-warning-text {
+    color: #ff4455 !important;
+    text-shadow: 0 0 8px #ff2233 !important;
+}
+
+/* ── Buttons ──────────────────────────────────────────── */
+body.vaporwave button.home-btn {
+    background: transparent !important;
+    border: 2px solid #ff6ec7 !important;
+    color: #ff6ec7 !important;
+    text-shadow: 0 0 8px #ff6ec7 !important;
+    box-shadow: 0 0 12px #ff6ec7, inset 0 0 8px rgba(255,110,199,0.1) !important;
+    font-family: 'Bungee', cursive !important;
+    transition: all 0.2s ease !important;
+}
+body.vaporwave button.home-btn:hover {
+    background: rgba(255,110,199,0.18) !important;
+    box-shadow: 0 0 28px #ff6ec7, inset 0 0 16px rgba(255,110,199,0.18) !important;
+}
+body.vaporwave #theme-toggler {
+    background: transparent !important;
+    border: 2px solid #00e5ff !important;
+    color: #00e5ff !important;
+    text-shadow: 0 0 8px #00e5ff !important;
+    box-shadow: 0 0 12px #00e5ff !important;
+    font-family: 'Bungee', cursive !important;
+}
+
+/* ── Input ────────────────────────────────────────────── */
+body.vaporwave #session-id {
+    background: rgba(8, 0, 25, 0.92) !important;
+    border: 1px solid #00e5ff !important;
+    color: #00e5ff !important;
+    box-shadow: 0 0 10px #00e5ff, inset 0 0 8px rgba(0,229,255,0.1) !important;
+}
+body.vaporwave #session-id::placeholder { color: rgba(0,229,255,0.4) !important; }
+
+/* ── Links ────────────────────────────────────────────── */
+body.vaporwave a { color: #ff6ec7 !important; text-shadow: 0 0 6px #ff6ec7 !important; }
+body.vaporwave a:hover { color: #ffe066 !important; text-shadow: 0 0 10px #ffe066 !important; }
+
+/* ── FAQ / footnotes ──────────────────────────────────── */
+body.vaporwave .footnotes {
+    background: rgba(8, 0, 25, 0.86) !important;
+    border: 1px solid #b14aed !important;
+    box-shadow: 0 0 22px rgba(177,74,237,0.5) !important;
+    color: #e0c0ff !important;
+}
+body.vaporwave .footnotes h2 {
+    color: #ff6ec7 !important;
+    text-shadow: 0 0 10px #ff6ec7 !important;
+}
+body.vaporwave .footnotes strong {
+    color: #00e5ff !important;
+    text-shadow: 0 0 6px #00e5ff !important;
+}
+
+/* ── Custom footer ────────────────────────────────────── */
+body.vaporwave .footnotes-container {
+    border-color: #b14aed !important;
+    color: #e0c0ff !important;
+}
+body.vaporwave .footer-section h4 {
+    color: #ff6ec7 !important;
+    text-shadow: 0 0 8px #ff6ec7 !important;
+}
+body.vaporwave .about-text,
+body.vaporwave .support-text { color: #b14aed !important; }
+body.vaporwave .about-highlight,
+body.vaporwave .attribution-instance-name {
+    color: #ffe066 !important;
+    text-shadow: 0 0 8px #ffe066 !important;
+}
+body.vaporwave .attribution-banner { border-color: #3a0060 !important; }
+body.vaporwave .footer-copyright { color: #b14aed !important; }
+body.vaporwave .footer-copyright-instance {
+    color: #ff6ec7 !important;
+    text-shadow: 0 0 6px #ff6ec7 !important;
+}
+body.vaporwave .version-info {
+    color: #b14aed !important;
+    text-shadow: 0 0 6px #b14aed !important;
+}
+
+/* ── Public session list ──────────────────────────────── */
+body.vaporwave ul.public-session-list li { color: #e0c0ff !important; }
+body.vaporwave ul.public-session-list li i { color: #b14aed !important; }
+
+/* ── Counter ──────────────────────────────────────────── */
+#vaporwave-counter {
+    text-align: center;
+    font-family: 'Bungee', cursive;
+    font-size: clamp(1rem, 2.8vw, 1.7rem);
+    color: #ffe066;
+    text-shadow: 0 0 10px #ffe066, 0 0 22px #ff9a3c;
+    padding: 22px 16px;
+    letter-spacing: 0.12em;
+    border-top: 1px solid rgba(177,74,237,0.45);
+    border-bottom: 1px solid rgba(177,74,237,0.45);
+    margin: 14px 0;
+}
+#counter-value {
+    color: #00e5ff;
+    text-shadow: 0 0 10px #00e5ff, 0 0 24px #00e5ff;
+}
+
+/* ── Sticker ──────────────────────────────────────────── */
+#radical-sticker {
+    position: fixed;
+    bottom: 58px;
+    left: 8px;
+    right: auto;
+    width: 140px;
+    height: 140px;
+    z-index: 9500;
+    pointer-events: none;
+    display: none;
+}
+body.vaporwave #radical-sticker { display: block; }
+.sticker-burst {
+    display: block;
+    animation: sticker-spin 9s linear infinite;
+    filter: drop-shadow(0 0 8px #ff00aa) drop-shadow(0 0 18px #ff44cc);
+}
+.sticker-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: Impact, 'Arial Black', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 900;
+    color: #ffff00;
+    text-align: center;
+    line-height: 1.35;
+    letter-spacing: 0.05em;
+    text-shadow: -1px -1px 0 #ff00aa, 1px -1px 0 #ff00aa,
+                 -1px  1px 0 #ff00aa, 1px  1px 0 #ff00aa,
+                 0 0 8px #ff00aa;
+}
+
+/* ── Konami key progress bar ──────────────────────────── */
+#konami-bar {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 5px;
+    z-index: 99998;
+    pointer-events: none;
+}
+.kb-key {
+    width: 34px;
+    height: 34px;
+    border: 2px solid rgba(177,74,237,0.25);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bungee', monospace, sans-serif;
+    font-size: 0.78rem;
+    color: rgba(177,74,237,0.3);
+    background: rgba(8,0,25,0.75);
+    transition: all 0.12s ease;
+}
+.kb-key.kb-lit {
+    border-color: #ffffff;
+    color: #ffffff;
+    background: rgba(0,229,255,0.12);
+    box-shadow:
+        0 0 6px #ffffff,
+        0 0 14px #00e5ff,
+        0 0 30px #00e5ff,
+        0 0 55px #ffffff,
+        inset 0 0 10px rgba(0,229,255,0.25);
+    animation: kb-zap 0.45s ease-out forwards;
+}
+.kb-key.kb-settled {
+    border-color: #00e5ff;
+    color: #00e5ff;
+    box-shadow:
+        0 0 6px #00e5ff,
+        0 0 14px #00e5ff,
+        inset 0 0 6px rgba(0,229,255,0.15);
+}
+#konami-bar.kb-fail .kb-key.kb-lit,
+#konami-bar.kb-fail .kb-key.kb-settled {
+    border-color: #ff2244;
+    color: #ff2244;
+    box-shadow: 0 0 10px #ff2244, 0 0 22px #ff0022;
+    animation: kb-fail 0.4s ease-out forwards;
+}
+
+@keyframes kb-zap {
+    0%   { transform: scale(1.45);
+           box-shadow: 0 0 25px #ffffff, 0 0 50px #00e5ff, 0 0 80px #ffffff; }
+    35%  { transform: scale(0.92);
+           box-shadow: 0 0 12px #ff6ec7, 0 0 25px #ff6ec7; }
+    100% { transform: scale(1);
+           box-shadow: 0 0 6px #00e5ff, 0 0 14px #00e5ff; }
+}
+@keyframes kb-fail {
+    0%, 100% { opacity: 1;   transform: translateX(0); }
+    20%       { opacity: 0.2; transform: translateX(-3px); }
+    60%       { opacity: 1;   transform: translateX(3px); }
+    80%       { opacity: 0.3; }
+}
+
+/* ── Animations ───────────────────────────────────────── */
+@keyframes vapor-flicker {
+    0%, 100% { opacity: 1; }
+    40%       { opacity: 0.15; }
+    60%       { opacity: 0.85; }
+}
+@keyframes vapor-pulse {
+    0%, 100% {
+        text-shadow: 0 0 10px #ff6ec7, 0 0 28px #ff6ec7,
+                     0 0 55px #ff3090, 0 0 110px #b14aed;
+    }
+    50% {
+        text-shadow: 0 0 22px #ff6ec7, 0 0 55px #ff6ec7,
+                     0 0 110px #ff3090, 0 0 220px #b14aed;
+    }
+}
+@keyframes sticker-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}

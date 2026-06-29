@@ -15,7 +15,7 @@ let config = {
     ]
 };
 
-const { logger } = require('./utils');
+const { logger, initLogger } = require('./utils');
 
 try {
     const siteConfig = require('./config.js');
@@ -26,6 +26,8 @@ try {
         logger('[] Error loading config.js: %s', err);
     }
 }
+
+initLogger(config);
 
 const express = require('express');
 const path = require('path');
