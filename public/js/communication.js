@@ -47,6 +47,20 @@ $(function () {
     let idleTimer = null;
     let idleDisconnected = false;
 
+    // Set when the server tells us the session is over (admin action or the
+    // idle reaper).  Suppresses the automatic reconnect/re-register loop, which
+    // would otherwise spin against a session that no longer exists.
+    let sessionWasEnded = false;
+
+    function endSession(data) {
+        sessionWasEnded = true;
+        const reason = (data && data.reason) ? data.reason : 'This session has ended.';
+        if (window.console) console.log('Session ended: %s', reason);
+        $('#status-message').html('<p><b></b></p>');
+        $('#status-message b').text(reason);
+        try { socket.disconnect(); } catch (e) { /* already closed */ }
+    }
+
     if (sessId !== 'solo' && IDLE_TIMEOUT_MS > 0) {
         $('#idle-reconnect-btn').on('click', function() {
             $('#idle-disconnect-overlay').css('display', 'none');
@@ -716,6 +730,9 @@ $(function () {
         }
 
         socket.on('disconnect', function () {
+            // If the session is gone there is nothing to rejoin - reconnecting
+            // would just loop through "rider rejected" until the tab is closed.
+            if (sessionWasEnded) return;
             if (window.console) console.log('Disconnected, reconnecting...');
             socket.emit('registerRider', { sessId: sessId });
             $(window).trigger('traffic-light');
@@ -724,9 +741,14 @@ $(function () {
             if (window.console) console.log("Attempting reconnect (%d)", attemptNumber);
         });
         socket.on('reconnect', function () {
+            if (sessionWasEnded) return;
             if (window.console) console.log('Reconnected, re-registering with session... ');
             socket.emit('registerRider', { sessId: sessId });
             $(window).trigger('traffic-light');
+        });
+        socket.on('sessionEnded', endSession);
+        socket.on('adminKicked', function () {
+            endSession({ reason: 'You were disconnected by an administrator.' });
         });
         socket.on('reconnect_failed', function () {
             if (window.console) console.log('Reconnect failed');
@@ -959,6 +981,7 @@ $(function () {
             $('#rider-bottle-countdown-container').hide();
 
             socket.on('disconnect', function () {
+                if (sessionWasEnded) return;
                 if (window.console) console.log('Disconnected, reconnecting...');
                 socket.emit('registerDriver', { sessId: localStorage.sessId, driverToken: localStorage.storedToken });
             });
@@ -966,8 +989,10 @@ $(function () {
                 if (window.console) console.log("Attempting reconnect (%d)", attemptNumber);
             });
             socket.on('reconnect', function () {
+                if (sessionWasEnded) return;
                 socket.emit('registerDriver', { sessId: localStorage.sessId, driverToken: localStorage.storedToken });
             });
+            socket.on('sessionEnded', endSession);
             socket.on('reconnect_failed', function () {
                 if (window.console) console.log('Reconnect failed');
             });

@@ -149,6 +149,24 @@ module.exports = {
     // accumulating on long-running sessions.  Set to 0 to disable.
     idleTimeoutHours: 6,
 
+    // Automatically close sessions that nobody is riding, so abandoned and never-joined
+    // sessions don't pile up on the public session list.
+    //
+    // The clock starts when the session is created and resets whenever a rider is present.
+    // A connected *human* driver gets the longer grace period, on the assumption they're
+    // waiting to coordinate with someone.  An automated driver playing to an empty room
+    // gets the short one, as does a session with no driver at all.
+    //
+    // The configured playlistSession is never reaped - it's meant to idle.  Set either
+    // limit to 0 to disable that tier, or enabled: false to turn the whole thing off.
+//    idleSessions: {
+//        enabled: true,
+//        noDriverMinutes: 5,        // no riders and no human driver
+//        driverPresentMinutes: 20,  // no riders but a driver is connected and waiting
+//        checkIntervalMs: 60000,    // how often to sweep
+//        exempt: []                 // extra session ids to never reap
+//    },
+
     // Private admin panel at /admin.  DISABLED unless you set a password here.
     //
     // It shows every live session, each connected rider's IP address and how long they've been connected,

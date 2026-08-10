@@ -28,13 +28,15 @@ class ElectronState {
         this.trafficLights = {};        // dictionary binding sockets to red / yellow / green traffic lights
         this.emojiResponses = {};       // dictionary binding sockets to emoji responses
         this.riderJoinTimes = {};       // dictionary binding sockets to join timestamp (ms)
-        
+        this.lastRiderAt = {};          // sessId -> last time (ms) the session had a rider
+
         logger('[] startup');
         if (this.config.verbose) logger('[] verbose logging enabled');
         if (this.config.memoryMonitor) logger('[] memoryMonitor logging enabled');
-        
+
         this.logActiveSessionCount();
         this.startRiderReaper();
+        this.startIdleSessionReaper();
     }
 
     initDatabase() {
@@ -104,6 +106,9 @@ class ElectronState {
             // Create new session
             this.db.prepare('INSERT INTO sessions (sess_id, session_start_time) VALUES (?, 0)').run(sessId);
             this.updateMessageStamps(sessId);
+            // Start the idle clock now, so a session nobody ever joins is still
+            // reaped rather than sitting empty forever.
+            this.lastRiderAt[sessId] = Date.now();
         }
 
         // Set default flags for new driver
@@ -198,7 +203,8 @@ class ElectronState {
             }
         }
         delete this.riders[sessId];
-        
+        delete this.lastRiderAt[sessId];
+
         logger("[%s] End session", sessId);
 
         logger("[] Stale session cleanup...");
@@ -316,6 +322,7 @@ class ElectronState {
             this.riders[sessId] = [socket];
         }
         this.riderJoinTimes[socket.id] = Date.now();
+        this.lastRiderAt[sessId] = Date.now();
         if (this.config.memoryMonitor) logger("[%s] memoryMonitor: addRiderSocket %o", sessId, process.memoryUsage());
     }
 
@@ -798,12 +805,21 @@ class ElectronState {
         return { ok: true };
     }
 
-    // End a session outright: stop any driver, boot the riders, clean up.
     adminEndSession(sessId) {
+        return this.terminateSession(
+            sessId,
+            'This session was ended by an administrator.',
+            'ADMIN ending session'
+        );
+    }
+
+    // End a session outright: stop any driver, boot the riders, clean up.
+    // Shared by the admin panel and the idle-session reaper.
+    terminateSession(sessId, reason, logLabel) {
         const exists = this.db.prepare('SELECT 1 FROM sessions WHERE sess_id = ?').get(sessId);
         if (!exists) return { ok: false, error: 'no such session' };
 
-        logger('[%s] ADMIN ending session', sessId);
+        logger('[%s] %s', sessId, logLabel || 'Ending session');
 
         // Grab the sockets FIRST.  cleanupSessionData() drops its bookkeeping
         // without closing anything, so if we stopped the driver before reading
@@ -818,13 +834,14 @@ class ElectronState {
             driver.stop(this);
         }
 
+        const payload = { reason: reason };
         for (const s of riderSockets) {
-            try { s.emit('sessionEnded'); } catch (_e) { /* socket already gone */ }
+            try { s.emit('sessionEnded', payload); } catch (_e) { /* socket already gone */ }
             try { s.disconnect(true); } catch (_e) { /* ditto */ }
         }
 
         if (driverSocket) {
-            try { driverSocket.emit('sessionEnded'); } catch (_e) { /* socket already gone */ }
+            try { driverSocket.emit('sessionEnded', payload); } catch (_e) { /* socket already gone */ }
             try { driverSocket.disconnect(true); } catch (_e) { /* ditto */ }
         }
 
@@ -834,6 +851,82 @@ class ElectronState {
             this.cleanupSessionData(sessId);
         }
         return { ok: true };
+    }
+
+    // ====== idle session reaper ======
+
+    // The configured playlist/jukebox session is meant to sit at zero riders
+    // waiting for someone to show up, so it must never be reaped.
+    isReapExempt(sessId) {
+        if (this.config.playlistSession && this.config.playlistSession.sessId === sessId) return true;
+        const extra = this.config.idleSessions && this.config.idleSessions.exempt;
+        return Array.isArray(extra) && extra.includes(sessId);
+    }
+
+    reapIdleSessions() {
+        const cfg = this.config.idleSessions || {};
+        const noDriverMinutes = cfg.noDriverMinutes === undefined ? 5 : cfg.noDriverMinutes;
+        const driverMinutes = cfg.driverPresentMinutes === undefined ? 20 : cfg.driverPresentMinutes;
+        const now = Date.now();
+
+        const rows = this.db.prepare('SELECT sess_id FROM sessions').all();
+        for (const row of rows) {
+            const sessId = row.sess_id;
+            if (this.isReapExempt(sessId)) continue;
+
+            // Someone is listening: keep the session and reset its clock.
+            if ((this.riders[sessId] || []).length > 0) {
+                this.lastRiderAt[sessId] = now;
+                continue;
+            }
+
+            // First time we've seen this session empty (e.g. it was restored
+            // from the database after a restart): start its clock now.
+            if (!this.lastRiderAt[sessId]) {
+                this.lastRiderAt[sessId] = now;
+                continue;
+            }
+
+            // A connected human driver is a person waiting to coordinate, so
+            // they get a longer grace period.  An automated driver playing to
+            // an empty room is exactly the clutter we're clearing out, so it
+            // falls under the short timer along with fully abandoned sessions.
+            const humanDriverWaiting = !!this.driverSockets[sessId];
+            const limitMinutes = humanDriverWaiting ? driverMinutes : noDriverMinutes;
+            if (!limitMinutes || limitMinutes <= 0) continue;   // 0 disables that tier
+
+            const idleMs = now - this.lastRiderAt[sessId];
+            if (idleMs < limitMinutes * 60000) continue;
+
+            const idleMinutes = Math.round(idleMs / 60000);
+            this.terminateSession(
+                sessId,
+                `This session was closed automatically after ${idleMinutes} minutes with no riders.`,
+                `Idle reaper: no riders for ${idleMinutes}m (limit ${limitMinutes}m, driver ${humanDriverWaiting ? 'present' : 'absent'})`
+            );
+        }
+    }
+
+    startIdleSessionReaper() {
+        if (this._idleSessionTimer) return;
+        const cfg = this.config.idleSessions || {};
+        if (cfg.enabled === false) {
+            logger('[] Idle session reaper disabled by config');
+            return;
+        }
+        const intervalMs = cfg.checkIntervalMs || 60000;
+        this._idleSessionTimer = setInterval(() => {
+            try {
+                this.reapIdleSessions();
+            } catch (e) {
+                logger('[] reapIdleSessions error: %s', e && e.stack ? e.stack : e);
+            }
+        }, intervalMs);
+        if (this._idleSessionTimer.unref) this._idleSessionTimer.unref();
+        logger('[] Idle session reaper started (no driver: %sm, driver present: %sm, every %dms)',
+            cfg.noDriverMinutes === undefined ? 5 : cfg.noDriverMinutes,
+            cfg.driverPresentMinutes === undefined ? 20 : cfg.driverPresentMinutes,
+            intervalMs);
     }
 
     close() {
