@@ -898,10 +898,11 @@ class ElectronState {
             const idleMs = now - this.lastRiderAt[sessId];
             if (idleMs < limitMinutes * 60000) continue;
 
-            const idleMinutes = Math.round(idleMs / 60000);
+            const idleMinutes = Math.max(1, Math.round(idleMs / 60000));
+            const plural = idleMinutes === 1 ? 'minute' : 'minutes';
             this.terminateSession(
                 sessId,
-                `This session was closed automatically after ${idleMinutes} minutes with no riders.`,
+                `This session was closed automatically after ${idleMinutes} ${plural} with no riders.`,
                 `Idle reaper: no riders for ${idleMinutes}m (limit ${limitMinutes}m, driver ${humanDriverWaiting ? 'present' : 'absent'})`
             );
         }
