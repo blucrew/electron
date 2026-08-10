@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0>
+  <meta name="robots" content="noindex, nofollow">
+
+  <link href="https://fonts.googleapis.com/css?family=Titillium+Web:200" rel="stylesheet" type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Cabin:400,500,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <!-- dark overrides load last so styles.dark.css can win -->
+  <link rel="stylesheet" href="" id='darkmode-stylesheet'>
+
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+  <script src="/js/themes.js"></script>
+
+  <title>e l e c t r o n | admin</title>
+</head>
+
+<body>
+  <button onclick="toggleTheme()" id="theme-toggler">Toggle Theme</button>
+  <h1 class="electron-title"><a href="/">electron</a></h1>
+
+  <div id="admin-wrap">
+
+    <div class="admin-bar">
+      <div class="admin-totals">
+        <span class="admin-stat"><b id="stat-sessions">-</b> sessions</span>
+        <span class="admin-stat"><b id="stat-riders">-</b> riders</span>
+        <span class="admin-stat"><b id="stat-human">-</b> human drivers</span>
+        <span class="admin-stat"><b id="stat-auto">-</b> auto drivers</span>
+        <span class="admin-stat admin-muted">uptime <b id="stat-uptime">-</b></span>
+        <span class="admin-stat admin-muted">rss <b id="stat-mem">-</b></span>
+      </div>
+      <div class="admin-bar-right">
+        <span id="admin-status" class="admin-muted">connecting...</span>
+        <label class="admin-toggle"><input type="checkbox" id="admin-autorefresh" checked> auto</label>
+        <button class="roundy-btn admin-btn-small" id="admin-refresh">Refresh</button>
+        <form method="POST" action="/admin/logout" class="admin-inline-form">
+          <button type="submit" class="roundy-btn admin-btn-small">Sign out</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="admin-actions-global">
+      <button class="roundy-btn admin-btn-small" id="admin-start-auto">Start automated session</button>
+      <button class="roundy-btn admin-btn-small" id="admin-start-playlist">Start jukebox</button>
+      <span id="admin-toast" class="admin-toast"></span>
+    </div>
+
+    <div id="admin-sessions"></div>
+
+    <p class="admin-footer admin-muted">electron <%= version %></p>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+
+</html>

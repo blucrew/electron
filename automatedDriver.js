@@ -310,6 +310,10 @@ class AutomatedDriver {
 
     stop(electronState) {
         clearInterval(this.intervalId);
+        // Also kill the end-of-session timer.  When a driver is stopped early
+        // (admin panel, last rider leaving) this would otherwise still fire
+        // later and emit end-of-session onto a session that no longer exists.
+        clearTimeout(this.stopTimeoutId);
         electronState.unregisterAutomatedDriver(this.sessId);
         logger('[%s] Automated driver has been stopped', this.sessId);
     }

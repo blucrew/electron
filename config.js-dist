@@ -149,6 +149,28 @@ module.exports = {
     // accumulating on long-running sessions.  Set to 0 to disable.
     idleTimeoutHours: 6,
 
+    // Private admin panel at /admin.  DISABLED unless you set a password here.
+    //
+    // It shows every live session, each connected rider's IP address and how long they've been connected,
+    // and lets you kick individual riders, end sessions, and start/stop automated drivers.  Because it is
+    // served from the same public hostname as the rest of the site, the password is the only thing
+    // protecting it - use a long random string (e.g. `openssl rand -base64 24`), and only run it over HTTPS.
+    //
+    // Logging in sets an HMAC-signed HttpOnly cookie.  Changing the password immediately invalidates every
+    // outstanding login.  Failed logins are rate limited and logged with the source IP.
+//    admin: {
+//        password: 'CHANGE-ME-to-a-long-random-string',
+//        sessionHours: 12,          // how long a login lasts
+//        loginMaxAttempts: 10,      // failed logins allowed per window, per IP
+//        loginWindowMs: 900000,     // the window, in ms (15 minutes)
+//        // Defaults used by the panel's one-click "Start automated session" button
+//        defaultAutomated: {
+//            sessionDuration: 30,
+//            publicSession: true,
+//            painProbability: 0
+//        }
+//    },
+
     // If you'd like to use a different bottle image, specify the filename here.  The file goes in the public/ folder.
 //    bottleImage: 'bottle.png',
 

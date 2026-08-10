@@ -318,3 +318,36 @@ html .ui-button.ui-state-disabled:active {
     background: #888;
 }
 
+/* admin panel dark mode overrides */
+.admin-bar {
+    background: #2a2a2a;
+    border-color: #444;
+}
+.admin-card {
+    background: #262626;
+    border-color: #444;
+}
+.admin-muted,
+.admin-toggle,
+.admin-card-meta,
+.admin-card-comments {
+    color: #999;
+}
+.admin-sess-id { color: #aaa; }
+.admin-rider-table th {
+    color: #888;
+    border-bottom-color: #3a3a3a;
+}
+.admin-rider-table td { border-bottom-color: #333; }
+.admin-tag { background: #3a3a3a; color: #bbb; }
+.admin-tag-human { background: #1b4f72; color: #d6eaf8; }
+.admin-tag-automated { background: #4a235a; color: #e8daef; }
+.admin-tag-playlist { background: #145a32; color: #d5f5e3; }
+.admin-tag-none { background: #333; color: #888; }
+.admin-tag-public { background: #7e5109; color: #fdebd0; }
+.admin-toast-ok { color: #58d68d; }
+.admin-toast-error,
+.admin-status-error,
+.admin-login-error { color: #ec7063; }
+.admin-login-container label { color: #999; }
+

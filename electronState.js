@@ -681,6 +681,154 @@ class ElectronState {
         return true;
     }
     
+    // ====== admin panel support ======
+
+    socketIp(socket) {
+        try {
+            const fwd = socket?.handshake?.headers?.['x-forwarded-for'];
+            // x-forwarded-for is a comma separated chain; the client is first
+            if (fwd) return String(fwd).split(',')[0].trim();
+            return socket?.handshake?.address || 'unknown';
+        } catch (_e) {
+            return 'unknown';
+        }
+    }
+
+    // Everything the admin panel needs, in one pass.  Read-only.
+    getAdminSnapshot() {
+        const now = Date.now();
+        const rows = this.db.prepare(`
+            SELECT sess_id, session_start_time, created_at, updated_at,
+                   driver_token IS NOT NULL AS has_token
+            FROM sessions ORDER BY created_at ASC
+        `).all();
+
+        const sessions = rows.map(row => {
+            const sessId = row.sess_id;
+            const flags = this.getSessionFlags(sessId) || {};
+            const driverSocket = this.driverSockets[sessId];
+            const driver = this.automatedDrivers[sessId];
+
+            let driverKind = 'none';
+            if (driver) driverKind = driver instanceof PlaylistDriver ? 'playlist' : 'automated';
+            else if (driverSocket) driverKind = 'human';
+
+            let minutesRemaining = null;
+            if (driver && typeof driver.minutesRemaining === 'function') {
+                try { minutesRemaining = driver.minutesRemaining(); } catch (_e) { minutesRemaining = null; }
+            }
+
+            const riders = (this.riders[sessId] || []).map(s => {
+                const joined = this.riderJoinTimes[s.id] || null;
+                return {
+                    socketId: s.id,
+                    ip: this.socketIp(s),
+                    joinedAt: joined,
+                    durationMs: joined ? now - joined : null,
+                    connected: s.connected !== false,
+                    trafficLight: this.trafficLights[s.id] || null,
+                    emoji: this.emojiResponses[s.id] || null
+                };
+            });
+
+            return {
+                sessId: sessId,
+                driverName: flags.driverName || null,
+                driverComments: flags.driverComments || null,
+                publicSession: flags.publicSession === true || flags.publicSession === 'true',
+                blindfoldRiders: flags.blindfoldRiders === true,
+                camUrl: flags.camUrl || null,
+                driverKind: driverKind,
+                driverConnected: !!driverSocket,
+                driverIp: driverSocket ? this.socketIp(driverSocket) : null,
+                hasDriverToken: !!row.has_token,
+                minutesRemaining: minutesRemaining,
+                createdAt: row.created_at || null,
+                startedAt: row.session_start_time || null,
+                ageMs: row.created_at ? now - row.created_at : null,
+                riders: riders,
+                riderCount: riders.length
+            };
+        });
+
+        return {
+            now: now,
+            totals: {
+                sessions: sessions.length,
+                riders: sessions.reduce((n, s) => n + s.riderCount, 0),
+                humanDrivers: sessions.filter(s => s.driverKind === 'human').length,
+                automatedDrivers: sessions.filter(s => s.driverKind === 'automated' || s.driverKind === 'playlist').length
+            },
+            playlistConfigured: this.config.playlistSession !== undefined,
+            playlistSessId: this.config.playlistSession?.sessId || null,
+            uptimeSec: Math.round(process.uptime()),
+            memory: process.memoryUsage().rss,
+            sessions: sessions
+        };
+    }
+
+    // Disconnect one rider socket.  onDisconnect() fires via the socket's own
+    // disconnect handler, so session bookkeeping cleans itself up.
+    adminKickRider(socketId) {
+        for (const sessId in this.riders) {
+            for (const s of this.riders[sessId]) {
+                if (s.id === socketId) {
+                    logger('[%s] ADMIN kicking rider %s at %s', sessId, socketId, this.socketIp(s));
+                    try { s.emit('adminKicked'); } catch (_e) { /* socket already gone */ }
+                    try { s.disconnect(true); } catch (_e) { /* ditto */ }
+                    return { ok: true, sessId: sessId };
+                }
+            }
+        }
+        return { ok: false, error: 'rider not found' };
+    }
+
+    // Stop an automated/playlist driver without tearing down anything else.
+    // Both driver classes now implement stop(), which unregisters the session.
+    adminStopDriver(sessId) {
+        const driver = this.automatedDrivers[sessId];
+        if (!driver) return { ok: false, error: 'no automated driver on that session' };
+        logger('[%s] ADMIN stopping automated driver', sessId);
+        if (typeof driver.stop === 'function') {
+            driver.stop(this);
+        } else {
+            // Defensive: unknown driver type, at least drop the session
+            this.cleanupSessionData(sessId);
+        }
+        return { ok: true };
+    }
+
+    // End a session outright: stop any driver, boot the riders, clean up.
+    adminEndSession(sessId) {
+        const exists = this.db.prepare('SELECT 1 FROM sessions WHERE sess_id = ?').get(sessId);
+        if (!exists) return { ok: false, error: 'no such session' };
+
+        logger('[%s] ADMIN ending session', sessId);
+        const driver = this.automatedDrivers[sessId];
+        if (driver && typeof driver.stop === 'function') {
+            // stop() unregisters, which runs cleanupSessionData for us
+            driver.stop(this);
+        }
+
+        for (const s of (this.riders[sessId] || []).slice()) {
+            try { s.emit('sessionEnded'); } catch (_e) { /* socket already gone */ }
+            try { s.disconnect(true); } catch (_e) { /* ditto */ }
+        }
+
+        const driverSocket = this.driverSockets[sessId];
+        if (driverSocket) {
+            try { driverSocket.emit('sessionEnded'); } catch (_e) { /* socket already gone */ }
+            try { driverSocket.disconnect(true); } catch (_e) { /* ditto */ }
+        }
+
+        // cleanupSessionData is idempotent enough to call again if the driver
+        // already triggered it, and is required when there was no driver.
+        if (this.db.prepare('SELECT 1 FROM sessions WHERE sess_id = ?').get(sessId)) {
+            this.cleanupSessionData(sessId);
+        }
+        return { ok: true };
+    }
+
     close() {
         // Graceful shutdown
         this.db.close();

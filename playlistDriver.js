@@ -375,6 +375,14 @@ class PlaylistDriver {
 
         logger('[%s] Playlist driver has been initialized', sessId);
     }
+
+    // Mirrors AutomatedDriver.stop().  Without this the 250ms interval above
+    // outlives the session forever once the driver is unregistered.
+    stop(electronState) {
+        clearInterval(this.intervalId);
+        electronState.unregisterAutomatedDriver(this.sessId);
+        logger('[%s] Playlist driver has been stopped', this.sessId);
+    }
 }
 
 module.exports = PlaylistDriver;

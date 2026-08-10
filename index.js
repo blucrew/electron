@@ -39,6 +39,7 @@ const ElectronState = require('./electronState');
 const automatedDriverConfig = require('./automatedDriverConfig');
 const inputValidationMiddleware = require('./inputValidation');
 const socketHandler = require('./socketHandler');
+const mountAdminPanel = require('./adminPanel');
 const { generateAutomatedSessId, validSessId } = require('./utils');
 const fs = require('fs');
 
@@ -228,6 +229,53 @@ app.get('/player/:mode/:sessId', function (req, res) {
         // something went wrong -> 404!
         res.status(404);
         res.send('Not found');
+    }
+});
+
+// private admin panel.  Mounted only when config.admin.password is set, so
+// this is inert for anyone who hasn't deliberately turned it on.
+mountAdminPanel(app, electronState, config, {
+    version: version,
+    // One-click "start automated session" needs a full driver config without a
+    // form, so fill in the same defaults cfgautomated.ejs ships with.  Any of
+    // them can be overridden via config.admin.defaultAutomated.
+    buildAutomatedConfig: function () {
+        const d = Object.assign({
+            sessionDuration: 30,
+            minFrequency: 1000,
+            maxFrequency: 1500,
+            initialFrequency: 1250,
+            startVolume: 50,
+            fmPreset: 4,
+            amPreset: 4,
+            amPreset2: 4,
+            painProbability: 0,
+            painIntensity: 4,
+            publicSession: true
+        }, (config.admin && config.admin.defaultAutomated) || {});
+
+        return {
+            ...automatedDriverConfig,
+            verbose: config.verbose,
+            bottlePromptingMin: 0,
+            bottlePromptingMax: 0,
+            sessionDuration: d.sessionDuration,
+            minFMDepth: d.fmPreset,
+            maxFMDepth: d.fmPreset * 3,
+            minAMDepth: d.amPreset,
+            maxAMDepth: d.amPreset * 3,
+            minAMDepth2: d.amPreset2,
+            maxAMDepth2: d.amPreset2 * 3,
+            minFrequency: d.minFrequency,
+            maxFrequency: d.maxFrequency,
+            initialFrequency: d.initialFrequency,
+            startVolume: d.startVolume,
+            painProbability: d.painProbability,
+            painIntensity: d.painIntensity,
+            proMode: (d.amPreset2 != 0),
+            driverComments: `${d.sessionDuration}m session started from the admin panel.`,
+            publicSession: d.publicSession
+        };
     }
 });
 
