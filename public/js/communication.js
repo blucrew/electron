@@ -43,6 +43,38 @@ $(function () {
 
     let position_dragging = false;
 
+    const IDLE_TIMEOUT_MS = (typeof idleTimeoutHours !== 'undefined' ? idleTimeoutHours : 6) * 60 * 60 * 1000;
+    let idleTimer = null;
+    let idleDisconnected = false;
+
+    if (sessId !== 'solo' && IDLE_TIMEOUT_MS > 0) {
+        $('#idle-reconnect-btn').on('click', function() {
+            $('#idle-disconnect-overlay').css('display', 'none');
+            idleDisconnected = false;
+            socket.connect();
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                if (!idleDisconnected) {
+                    idleTimer = setTimeout(function() {
+                        if (window.console) console.log('Tab idle, disconnecting');
+                        idleDisconnected = true;
+                        socket.disconnect();
+                    }, IDLE_TIMEOUT_MS);
+                }
+            } else {
+                if (idleTimer) {
+                    clearTimeout(idleTimer);
+                    idleTimer = null;
+                }
+                if (idleDisconnected) {
+                    $('#idle-disconnect-overlay').css('display', 'flex');
+                }
+            }
+        });
+    }
+
     const ss4TagMap = {
         volume: 'Vol',
         rampRate: 'VolC',

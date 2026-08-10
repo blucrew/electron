@@ -144,6 +144,11 @@ module.exports = {
     // can be found in views/footnotes.html-dist
 //    indexFootnotesFile: 'footnotes.html',
 
+    // Idle timeout in hours.  If a tab is hidden (backgrounded, minimized, behind another window) for this long,
+    // the client disconnects and shows a reconnect button when the user returns.  Prevents zombie riders from
+    // accumulating on long-running sessions.  Set to 0 to disable.
+    idleTimeoutHours: 6,
+
     // If you'd like to use a different bottle image, specify the filename here.  The file goes in the public/ folder.
 //    bottleImage: 'bottle.png',
 

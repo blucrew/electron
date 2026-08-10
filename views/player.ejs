@@ -26,6 +26,7 @@
     const camUrlList = <%- JSON.stringify(camUrlList) || '[]' %>;
     const emojiPickerConfig = <%- JSON.stringify(emojiPicker) || '{}' %>;
     const autoBottleConfig = <%- JSON.stringify(autoBottle) || 'null' %>;
+    const idleTimeoutHours = <%= typeof idleTimeoutHours !== 'undefined' && idleTimeoutHours !== undefined ? idleTimeoutHours : 6 %>;
   </script>
 
   <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
@@ -386,5 +387,13 @@
   <script src="/js/coyote.js"></script>
   <script src="/js/coyote-ui.js"></script>
   <% } %>
+
+  <div id="idle-disconnect-overlay">
+    <div class="idle-disconnect-box">
+      <p>Disconnected due to inactivity.</p>
+      <button id="idle-reconnect-btn">Reconnect</button>
+    </div>
+  </div>
+
 </body>
 </html>
