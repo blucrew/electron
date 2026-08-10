@@ -804,18 +804,25 @@ class ElectronState {
         if (!exists) return { ok: false, error: 'no such session' };
 
         logger('[%s] ADMIN ending session', sessId);
+
+        // Grab the sockets FIRST.  cleanupSessionData() drops its bookkeeping
+        // without closing anything, so if we stopped the driver before reading
+        // these lists we'd leave the riders connected but untracked - the panel
+        // would show an empty session while their browsers played on.
+        const riderSockets = (this.riders[sessId] || []).slice();
+        const driverSocket = this.driverSockets[sessId];
+
         const driver = this.automatedDrivers[sessId];
         if (driver && typeof driver.stop === 'function') {
             // stop() unregisters, which runs cleanupSessionData for us
             driver.stop(this);
         }
 
-        for (const s of (this.riders[sessId] || []).slice()) {
+        for (const s of riderSockets) {
             try { s.emit('sessionEnded'); } catch (_e) { /* socket already gone */ }
             try { s.disconnect(true); } catch (_e) { /* ditto */ }
         }
 
-        const driverSocket = this.driverSockets[sessId];
         if (driverSocket) {
             try { driverSocket.emit('sessionEnded'); } catch (_e) { /* socket already gone */ }
             try { driverSocket.disconnect(true); } catch (_e) { /* ditto */ }

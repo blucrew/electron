@@ -231,6 +231,12 @@
         $('admin-start-playlist').addEventListener('click', function () {
             post('/admin/api/playlist/start', 'Jukebox started');
         });
+        // Coming back to a backgrounded tab should show current data at once
+        // rather than whatever was on screen when polling paused.
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) refresh();
+        });
+
         refresh();
         startPolling();
     });
