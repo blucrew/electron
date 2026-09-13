@@ -491,11 +491,14 @@ $(function () {
             if (window.console) console.log("socket connect error: %o", msg);
         });
 
-        socket.on('sessionMessages', function(msg) {
+        socket.on('sessionMessages', function(msg, fileName) {
             if (window.File && window.FileReader && window.FileList && window.Blob) {
                 let element = document.createElement('a');
                 element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(msg));
-                element.setAttribute('download', `${sessId}.json`);
+                // The server supplies the name, built from the driver name and
+                // session info fields.  Fall back to the session id if we're
+                // talking to an older server that doesn't send one.
+                element.setAttribute('download', fileName || `${sessId}.json`);
                 element.style.display = 'none';
                 document.body.appendChild(element);
                 element.click();

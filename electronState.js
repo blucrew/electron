@@ -5,7 +5,7 @@ const path = require('path');
 const Database = require('better-sqlite3');
 const AutomatedDriver = require('./automatedDriver.js');
 const PlaylistDriver = require('./playlistDriver.js');
-const { logger, validSessId } = require('./utils.js');
+const { logger, validSessId, sessionFileBase } = require('./utils.js');
 
 const channels = ['left', 'right', 'pain-left', 'pain-right', 'bottle'];
 
@@ -157,12 +157,25 @@ class ElectronState {
                     if (! fs.existsSync(savedSessionsDir)) {
                         fs.mkdirSync(savedSessionsDir, { recursive: true });
                     }
+                    // Name the file after the driver's name / session info when
+                    // they set them, falling back to the session id.
+                    const base = sessionFileBase(sessId, this.getSessionFlags(sessId));
+
                     let filePath;
                     let i = 0;
                     do {
-                        filePath = path.join(savedSessionsDir, `${sessId}${i > 0 ? ` (${i})` : ''}.json`);
+                        const fileName = `${base}${i > 0 ? ` (${i})` : ''}.json`;
+                        // basename() is a belt-and-braces guard: sessionFileBase
+                        // already strips separators, but this file must never be
+                        // able to land outside savedSessionsDir.
+                        filePath = path.join(savedSessionsDir, path.basename(fileName));
                         i++;
                     } while (fs.existsSync(filePath));
+
+                    if (! path.resolve(filePath).startsWith(savedSessionsDir + path.sep)) {
+                        throw new Error(`refusing to write outside ${savedSessionsDir}`);
+                    }
+
                     fs.writeFileSync(filePath, sessionMessages, 'utf8');
                     logger("[%s] Session saved to %s", sessId, filePath);
                 }

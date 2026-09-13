@@ -1,4 +1,4 @@
-const { logger, generateToken, validSessId } = require('./utils');
+const { logger, generateToken, validSessId, sessionFileBase } = require('./utils');
 
 module.exports = function (electronState) {
     return function (socket) {
@@ -116,7 +116,12 @@ module.exports = function (electronState) {
             }
             const sessId = msg.sessId;
             if (electronState.getVerbose()) logger("[%s] getSessionMessages", sessId);
-            socket.emit('sessionMessages', electronState.getSessionMessages(sessId));
+            // Second argument is the suggested download filename.  The server
+            // owns this so a browser download and a server-side auto-save of
+            // the same session can't end up named differently.  Older clients
+            // simply ignore the extra argument.
+            const fileName = `${sessionFileBase(sessId, electronState.getSessionFlags(sessId))}.json`;
+            socket.emit('sessionMessages', electronState.getSessionMessages(sessId), fileName);
         });
 
         // ====== clearSessionMessages ======
